@@ -1,10 +1,10 @@
-import Footer from "@/components/footer";
-import Nav from "@/components/nav";
+//import Footer from "@/components/footer";
+//import Nav from "@/components/nav";
 import PwaUpdater from "@/components/pwa-updater";
 import { DocSearchProvider, LayoutProvider } from "@/providers";
 import { DocSearch } from "@/utils/types";
 
-import { Analytics } from "@vercel/analytics/react";
+//import { Analytics } from "@vercel/analytics/react";
 import NextApp, { AppContext, AppInitialProps } from "next/app";
 import type { AppProps } from "next/app";
 import Head from "next/head";
@@ -32,13 +32,10 @@ export default function App({
       </Head>
       <DocSearchProvider docSearch={docSearch}>
         <LayoutProvider>
-          <Nav />
           <main className="flex-grow">
             <Component {...componentProps} />
           </main>
-          <Footer />
           <PwaUpdater />
-          <Analytics />
         </LayoutProvider>
       </DocSearchProvider>
     </>
