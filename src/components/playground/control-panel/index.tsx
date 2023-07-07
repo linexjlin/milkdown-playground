@@ -1,41 +1,21 @@
 import { useLinkClass } from "@/hooks";
-import { useDarkMode } from "@/providers";
+//import { useDarkMode } from "@/providers";
 
-import * as Accordion from "@radix-ui/react-accordion";
+//import * as Accordion from "@radix-ui/react-accordion";
 import clsx from "clsx";
 import type { FC, RefObject } from "react";
-import { JSONTree } from "react-json-tree";
+//import { JSONTree } from "react-json-tree";
 import pkgJson from "../../../../package.json";
 import type { CodemirrorProps, CodemirrorRef } from "../../codemirror";
 import { Codemirror } from "../../codemirror";
-import { useProseState } from "../../playground-editor/ProseStateProvider";
-import { PluginToggle } from "../plugin-toggle";
+//import { useProseState } from "../../playground-editor/ProseStateProvider";
+//import { PluginToggle } from "../plugin-toggle";
 import { useShare } from "../../playground-editor/ShareProvider";
-import { AccordionItem } from "./AccordionItem";
+//import { AccordionItem } from "./AccordionItem";
 
 interface ControlPanelProps extends CodemirrorProps {
   codemirrorRef: RefObject<CodemirrorRef>;
 }
-
-const twilight = {
-  scheme: "twilight",
-  base00: "#2E3440",
-  base01: "#323537",
-  base02: "#464b50",
-  base03: "#5f5a60",
-  base04: "#838184",
-  base05: "#a7a7a7",
-  base06: "#c3c3c3",
-  base07: "#ffffff",
-  base08: "#cf6a4c",
-  base09: "#cda869",
-  base0A: "#f9ee98",
-  base0B: "#8f9d6a",
-  base0C: "#afc4db",
-  base0D: "#7587a6",
-  base0E: "#9b859d",
-  base0F: "#9b703f",
-};
 
 export const ControlPanel: FC<ControlPanelProps> = ({
   content,
@@ -44,8 +24,8 @@ export const ControlPanel: FC<ControlPanelProps> = ({
   codemirrorRef,
 }) => {
   const linkClass = useLinkClass();
-  const proseState = useProseState();
-  const darkMode = useDarkMode();
+  //const proseState = useProseState();
+  //const darkMode = useDarkMode();
   const share = useShare();
 
   return (
