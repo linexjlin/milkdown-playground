@@ -69,32 +69,14 @@ export const ControlPanel: FC<ControlPanelProps> = ({
           </button>
         </div>
       </div>
-      <Accordion.Root
-        type="single"
-        defaultValue="markdown"
-        className="h-[calc(100%-2.5rem)]"
-      >
-        <AccordionItem value="markdown" name="Markdown">
+
           <Codemirror
             ref={codemirrorRef}
             content={content}
             onChange={onChange}
             lock={lock}
           />
-        </AccordionItem>
-        <AccordionItem value="inspector" name="Inspector">
-          <PluginToggle />
-        </AccordionItem>
-        <AccordionItem value="state" name="State">
-          <div className="flex min-h-full px-2 [&>*]:!m-0 [&>*]:flex-1 [&>*]:!bg-transparent">
-            <JSONTree
-              data={proseState}
-              theme={twilight}
-              invertTheme={!darkMode}
-            />
-          </div>
-        </AccordionItem>
-      </Accordion.Root>
+
     </div>
   );
 };
