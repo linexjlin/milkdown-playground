@@ -94,7 +94,7 @@ export default function Playground({ template }: { template: string }) {
       <Head>
         <title>Playground | Milkdown</title>
       </Head>
-      <div className="m-0 mt-16 grid border-b border-gray-300 dark:border-gray-600 md:ml-20 md:mt-0 md:grid-cols-2">
+      <div className="m-0 mt-16 grid border-b border-gray-300 dark:border-gray-600 md:ml-20 md:mt-0 md:grid-cols-2" style={{ marginLeft: "0rem" }}>
         <Provider>
 
           <div className="h-[calc(50vh-2rem)] overflow-auto overscroll-none border-l border-gray-300 dark:border-gray-600 md:h-screen">
