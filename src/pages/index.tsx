@@ -1,101 +1,120 @@
-import HomeEditor from "@/components/home-editor";
-import { Button } from "@/components/home/Button";
-import { InfoCard } from "@/components/home/InfoCard";
+import { CodemirrorRef } from "@/components/codemirror";
+import Loading from "@/components/loading";
+import type { MilkdownRef } from "@/components/playground-editor";
+import { FeatureToggleProvider } from "@/components/playground-editor/FeatureToggleProvider";
+import { InspectorProvider } from "@/components/playground-editor/InspectorProvider";
+import { ProseStateProvider } from "@/components/playground-editor/ProseStateProvider";
+import { ShareProvider } from "@/components/playground-editor/ShareProvider";
+import { getPlaygroundTemplate } from "@/pages/api/playground";
+import { compose } from "@/utils/compose";
+import { decode } from "@/utils/share";
 import { MilkdownProvider } from "@milkdown/react";
 import { ProsemirrorAdapterProvider } from "@prosemirror-adapter/react";
+import dynamic from "next/dynamic";
 import Head from "next/head";
-import Link from "next/link";
+import { useRouter } from "next/router";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-const gettingStarted = "/docs/guide/getting-started";
-const playground = "/playground";
+const PlaygroundMilkdown = dynamic(
+  () =>
+    import("@/components/playground-editor").then((module) => ({
+      default: module.PlaygroundMilkdown,
+    })),
+  {
+    ssr: false,
+    loading: () => <Loading />,
+  }
+);
 
-const doc = `
-# Like this one
+const ControlPanel = dynamic(
+  () =>
+    import("@/components/playground/control-panel").then((module) => ({
+      default: module.ControlPanel,
+    })),
+  {
+    ssr: false,
+    loading: () => <Loading />,
+  }
+);
 
-> I'll see you on the dark side of the moon.  -- Roger Waters
-
-Try it out by typing in here, or visiting the [online playground](/playground).
-`;
+const Provider = compose(
+  FeatureToggleProvider,
+  MilkdownProvider,
+  ProsemirrorAdapterProvider,
+  ProseStateProvider,
+  ShareProvider,
+  InspectorProvider
+);
 
 export async function getStaticProps() {
+  const template = await getPlaygroundTemplate();
   return {
-    props: {}, // will be passed to the page component as props
+    props: {
+      template,
+    },
   };
 }
 
-const InfoCardData = [
-  {
-    title: "Plugin Driven",
-    desc: "Everything in milkdown are plugins. Extend your editor with different types of plugins: syntax, theme, UI, etc.",
-  },
-  {
-    title: "Collaborative",
-    desc: "With the support of Y.js, milkdown can be used in real-time collaborative editing.",
-  },
-  {
-    title: "Headless",
-    desc: "Milkdown is headless and comes without any CSS. You can easily customize the editor to fit the style of your application.",
-  },
-  {
-    title: "Reliable",
-    desc: "Milkdown is built on top of some great libraries, such as ProseMirror, Y.js, and Remark. Which means you can use their community and eco system to get help.",
-  },
-];
+export default function Playground({ template }: { template: string }) {
+  const [content, setContent] = useState(template);
+  const router = useRouter();
+  const path = router.asPath;
 
-export default function Home() {
+  useEffect(() => {
+    const [_, search = ""] = path.split("?");
+    const searchParams = new URLSearchParams(search);
+    const text = searchParams.get("text");
+    if (text) {
+      setContent(decode(text));
+    }
+  }, [path]);
+
+  const lockCodemirror = useRef(false);
+  const milkdownRef = useRef<MilkdownRef>(null);
+  const codemirrorRef = useRef<CodemirrorRef>(null);
+
+  const onMilkdownChange = useCallback((markdown: string) => {
+    const lock = lockCodemirror.current;
+    if (lock) return;
+
+    const codemirror = codemirrorRef.current;
+    if (!codemirror) return;
+    codemirror.update(markdown);
+  }, []);
+
+  const onCodemirrorChange = useCallback((getCode: () => string) => {
+    const { current } = milkdownRef;
+    if (!current) return;
+    const value = getCode();
+    current.update(value);
+  }, []);
+
   return (
     <>
       <Head>
-        <title>Milkdown</title>
+        <title>Playground | Milkdown</title>
       </Head>
-      <div className="mx-8 pt-24 md:mx-24 lg:mx-40 xl:mx-80 2xl:mx-auto 2xl:max-w-4xl">
-        <div className="mt-24 text-center">
-          <h1 className="text-4xl font-medium sm:text-6xl xl:text-8xl">
-            The{" "}
-            <span className="text-nord10 dark:text-nord9">
-              WYSIWYG Markdown
-            </span>{" "}
-            Editor Framework
-          </h1>
-          <p className="mt-6 text-lg font-light sm:text-2xl">
-            🍼 A plugin driven framework to build WYSIWYG Markdown editor.
-          </p>
-          <div className="mt-9 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Link href={gettingStarted}>
-              <Button primary text="GET STARTED" icon="play_circle" />
-            </Link>
-            <Link className="hidden md:block" href={playground}>
-              <Button text="PLAYGROUND" icon="gamepad" />
-            </Link>
-            <a
-              className="hidden md:block"
-              href="https://github.com/Milkdown/examples"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <Button text="EXAMPLES" icon="view_cozy" />
-            </a>
-            <a
-              href="https://github.com/Milkdown/milkdown"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <Button text="VIEW ON GITHUB" />
-            </a>
+      <div className="m-0 mt-16 grid border-b border-gray-300 dark:border-gray-600 md:ml-20 md:mt-0 md:grid-cols-2">
+        <Provider>
+
+          <div className="h-[calc(50vh-2rem)] overflow-auto overscroll-none border-l border-gray-300 dark:border-gray-600 md:h-screen">
+            <ControlPanel
+              codemirrorRef={codemirrorRef}
+              content={content}
+              onChange={onCodemirrorChange}
+              lock={lockCodemirror}
+            />
           </div>
-        </div>
-        <div className="mt-24">
-          <MilkdownProvider>
-            <ProsemirrorAdapterProvider>
-              <HomeEditor value={doc.trim()} />
-            </ProsemirrorAdapterProvider>
-          </MilkdownProvider>
-        </div>
-        <div className="mt-24 grid grid-cols-1 gap-6 md:grid-cols-2">
-          {InfoCardData.map((data) => (
-            <InfoCard key={data.title} title={data.title} desc={data.desc} />
-          ))}
-        </div>
+
+          <div className="h-[calc(50vh-2rem)] overflow-auto overscroll-none md:h-screen">
+            <PlaygroundMilkdown
+              milkdownRef={milkdownRef}
+              content={content}
+              onChange={onMilkdownChange}
+            />
+          </div>
+
+        </Provider>
       </div>
     </>
   );
