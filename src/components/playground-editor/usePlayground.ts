@@ -20,6 +20,7 @@ import { math, mathBlockSchema } from "@milkdown/plugin-math";
 import { prism, prismConfig } from "@milkdown/plugin-prism";
 import { trailing } from "@milkdown/plugin-trailing";
 import { upload } from "@milkdown/plugin-upload";
+import { copilotPlugin } from "./copilotPlugin";
 import {
   codeBlockSchema,
   commonmark,
@@ -212,6 +213,7 @@ export const usePlayground = (
         .use(trailing)
         .use(imageTooltip)
         .use(slash.plugins)
+        .use(copilotPlugin)
         .use(
           $view(listItemSchema.node, () =>
             nodeViewFactory({ component: ListItem })
