@@ -53,7 +53,8 @@ import {
   ImageTooltip,
   imageTooltip,
 } from "@/components/playground-editor/editor-component/ImageTooltip";
-import { linkPlugin } from "@/components/playground-editor/editor-component/LinkWidget";
+//import { linkPlugin } from "@/components/playground-editor/editor-component/LinkWidget";
+import { linkPlugin } from "@/components/milkdown-shared/linkPlugin";
 import { ListItem } from "@/components/playground-editor/editor-component/ListItem";
 import { MathBlock } from "@/components/playground-editor/editor-component/MathBlock";
 import {
@@ -299,7 +300,9 @@ export const usePlayground = (
       const base64 = encode(content);
 
       const url = new URL(location.href);
+
       url.searchParams.set("text", base64);
+      url.pathname = "/preview";
       navigator.clipboard.writeText(url.toString());
       toast("Share link copied.", "success");
       router.replace(url.toString());
