@@ -61,8 +61,17 @@ export default function Playground({ template }: { template: string }) {
   const lockCodemirror = useRef(false);
   const milkdownRef = useRef<MilkdownRef>(null);
   const codemirrorRef = useRef<CodemirrorRef>(null);
-
+  let changeCount = 0;
   const onMilkdownChange = useCallback((markdown: string) => {
+    console.log(changeCount);
+    changeCount = changeCount +1;
+
+  // 添加判断逻辑
+  if (changeCount > 8) {
+    const newUrl = window.location.href.replace('preview', '');
+    window.location.href = newUrl;
+    return;
+  }
     const lock = lockCodemirror.current;
     if (lock) return;
 
