@@ -6,6 +6,7 @@ import { InspectorProvider } from "@/components/playground-editor/InspectorProvi
 import { ProseStateProvider } from "@/components/playground-editor/ProseStateProvider";
 import { ShareProvider } from "@/components/playground-editor/ShareProvider";
 import { getPlaygroundTemplate } from "@/pages/api/playground";
+import { getContentFromIPFS } from "@/pages/api/ipfs";
 import { compose } from "@/utils/compose";
 import { decode } from "@/utils/share";
 import { MilkdownProvider } from "@milkdown/react";
@@ -36,15 +37,19 @@ const Provider = compose(
 );
 
 export async function getStaticProps() {
+  const ipfsGet = process.env.IPFS_GET;
+  const ipfsUpload = process.env.IPFS_UPLOAD;
   const template = await getPlaygroundTemplate();
   return {
     props: {
       template,
+      ipfsGet,
+      ipfsUpload,
     },
   };
 }
 
-export default function Playground({ template }: { template: string }) {
+export default function Playground({ template,ipfsGet,ipfsUpload }: { template: string,ipfsGet: string,ipfsUpload: string }) {
   const [content, setContent] = useState(template);
   const router = useRouter();
   const path = router.asPath;
@@ -52,6 +57,18 @@ export default function Playground({ template }: { template: string }) {
   useEffect(() => {
     const [_, search = ""] = path.split("?");
     const searchParams = new URLSearchParams(search);
+    const hash = searchParams.get("id");
+
+    localStorage.setItem('IPFS_GET', ipfsGet);
+    localStorage.setItem('IPFS_UPLOAD', ipfsUpload);
+
+    if (hash) {
+      getContentFromIPFS(hash).then((result: string) => {
+         setContent(result);
+      }).catch((error: Error) => {
+         console.error(error);
+      });
+    }
     const text = searchParams.get("text");
     if (text) {
       setContent(decode(text));

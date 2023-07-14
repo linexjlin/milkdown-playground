@@ -14,6 +14,7 @@ import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { getContentFromIPFS } from "@/pages/api/ipfs";
 
 const PlaygroundMilkdown = dynamic(
   () =>
@@ -47,15 +48,19 @@ const Provider = compose(
 );
 
 export async function getStaticProps() {
+  const ipfsGet = process.env.IPFS_GET;
+  const ipfsUpload = process.env.IPFS_UPLOAD;
   const template = await getPlaygroundTemplate();
   return {
     props: {
       template,
+      ipfsGet,
+      ipfsUpload,
     },
   };
 }
 
-export default function Playground({ template }: { template: string }) {
+export default function Playground({ template,ipfsGet,ipfsUpload }: { template: string,ipfsGet: string,ipfsUpload: string }) {
   const [content, setContent] = useState(template);
   const router = useRouter();
   const path = router.asPath;
@@ -63,6 +68,18 @@ export default function Playground({ template }: { template: string }) {
   useEffect(() => {
     const [_, search = ""] = path.split("?");
     const searchParams = new URLSearchParams(search);
+    const hash = searchParams.get("id");
+
+    localStorage.setItem('IPFS_GET', ipfsGet);
+    localStorage.setItem('IPFS_UPLOAD', ipfsUpload);
+
+    if (hash) {
+      getContentFromIPFS(hash).then((result: string) => {
+         setContent(result);
+      }).catch((error: Error) => {
+         console.error(error);
+      });
+    }
     const text = searchParams.get("text");
     if (text) {
       setContent(decode(text));
