@@ -65,6 +65,7 @@ import {
   tableTooltipCtx,
 } from "@/components/playground-editor/editor-component/TableWidget";
 import { encode } from "@/utils/share";
+import { uploadIPFS } from "@/pages/api/ipfs";
 import { useSetShare } from "./ShareProvider";
 import { useToast } from "../toast";
 import { useFeatureToggle } from "./FeatureToggleProvider";
@@ -301,13 +302,20 @@ export const usePlayground = (
       const content = editor.action(getMarkdown());
       const base64 = encode(content);
 
-      const url = new URL(location.href);
+      uploadIPFS(content).then((result: string) => {
+	  const ipfsHash = result;
+          const url = new URL(location.href);
 
-      url.searchParams.set("text", base64);
-      url.pathname = "/preview";
-      navigator.clipboard.writeText(url.toString());
-      toast("Share link copied.", "success");
-      router.replace(url.toString());
+          url.searchParams.set("id", ipfsHash);
+          url.pathname = "/preview";
+          navigator.clipboard.writeText(url.toString());
+          toast("Share link copied.", "success");
+          router.replace(url.toString());
+
+  	}).catch((error: Error) => {
+    	  console.error(error);
+        });
+
     });
   }, [get, router, setShare, toast]);
 
