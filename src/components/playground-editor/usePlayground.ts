@@ -301,6 +301,7 @@ export const usePlayground = (
 
       const content = editor.action(getMarkdown());
       const base64 = encode(content);
+      console.log(base64);
 
       uploadIPFS(content).then((result: string) => {
 	  const ipfsHash = result;

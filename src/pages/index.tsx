@@ -48,8 +48,8 @@ const Provider = compose(
 );
 
 export async function getStaticProps() {
-  const ipfsGet = process.env.IPFS_GET;
-  const ipfsUpload = process.env.IPFS_UPLOAD;
+  const ipfsGet = process.env.IPFS_GET || 'ipfs.io';
+  const ipfsUpload = process.env.IPFS_UPLOAD || 'ipfs.io';
   const template = await getPlaygroundTemplate();
   return {
     props: {
